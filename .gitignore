@@ -1,0 +1,2 @@
+# Ignore the csv file with word embedding from SciBert
+database/content_analysis_abstract_embedding.csv
