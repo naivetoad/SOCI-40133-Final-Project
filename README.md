@@ -2,8 +2,8 @@
 
 This repository contains Jiazheng Li (jiazheng123@uchicago.edu), Tianyue Cong (tianyuec@uchicago.edu), and Weiwu Yan's (weiwuyan@uchicago.edu) code for SOCI 40133 Computational Content Analysis final project that examines:
 1) difference in funding received across subfields under NSF division of Behavioral and Cognitive Sciences;
-2) temporald dynamics of topic prevalence from 2011 to 2020;
-3) the impact of research funding on awarded authors' research topical diversity.
+2) temporal dynamics of topic prevalence from 2011 to 2020;
+3) impact of research funding on awarded authors' research topical diversity.
 
 ## Github Repo Navigation
 The following is the **top-level directory layout** of this repo:
