@@ -12,23 +12,14 @@ library(stringr)
 library(readxl)
 ```
 
-
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 install.packages("readxl")
 ```
 
-
-
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
-
-When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
-
-```{r cars}
-setwd("/Users/lijiazheng/Desktop")
-df_pub <- read_excel("preprocessed_content_analysis.xlsx")
+```{r}
+df_pub <- read_excel("../database/preprocessed_content_analysis.xlsx")
 ```
-
 
 ```{r}
 # Preprocess and tokenize
@@ -156,14 +147,6 @@ legend("topright",
        lty = 1, cex = 0.6)
   
 ```
-
-
-
-
-
-
-
-
 
 ```{r}
 #Extracting Topic Proportions 
@@ -300,11 +283,5 @@ plot(network_graph,
 edge.color = "gray30" 
 
 ```
-
-
-
-
-
-
 
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
