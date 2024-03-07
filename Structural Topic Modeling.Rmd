@@ -1,0 +1,304 @@
+---
+title: "stm"
+output: html_document
+date: "2024-02-21"
+---
+
+```{r setup, include=FALSE}
+library(quanteda)
+library(stm)
+library(textclean)
+library(stringr)
+library(readxl)
+library(reshape2)
+library(igraph)
+library(pheatmap)
+```
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+install.packages("readxl")
+```
+
+
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r cars}
+setwd("/Users/lijiazheng/Desktop")
+df_pub <- read_excel("preprocessed_content_analysis.xlsx")
+```
+
+
+```{r}
+# Preprocess and tokenize
+english_words <- lexicon::hash_lemmas$WORD
+
+df_pub$cleaned_abstract <- df_pub$normalized_abstract %>%
+  str_replace_all("[^\\w\\s]", " ") %>%
+  str_to_lower() %>%
+  str_squish()
+
+tokens <- tokens(df_pub$cleaned_abstract) %>%
+  tokens_remove(stopwords("en"), padding = FALSE) %>%
+  tokens_remove(pattern = "\\b[[:digit:]]+\\b", valuetype = "regex") %>%
+  tokens_remove(pattern = c("[", "]", ",", "(", ")", ".", ";", ":", "\"", "/", "{", "}"), valuetype = "fixed") %>%
+  tokens_remove(pattern = "\\b[a-z]{1,2}\\b", valuetype = "regex")
+
+# Create DFM and remove non-English words
+dfm <- dfm(tokens) %>%
+  dfm_select(pattern = english_words, selection = "keep", valuetype = "fixed")
+```
+
+```{r}
+#Converting DFM to STM format
+dtm <- convert(dfm, to = "stm")
+# Extracting Components for STM
+documents <- dtm$documents
+vocab <- dtm$vocab
+```
+
+```{r}
+# Preparing Metadata
+meta <- data.frame(publication_year = df_pub$publication_year)
+print(nrow(meta))
+```
+
+
+```{r}
+#Removing Empty Documents
+empty_docs <- which(lengths(tokens) == 0)
+print(empty_docs)
+```
+
+
+
+```{r}
+# Adjusting Metadata for Consistency
+meta <- meta[-c(70523, 70525), , drop = FALSE]
+print(nrow(meta))  
+print(is.data.frame(meta))  
+```
+
+```{r}
+# search ideal number of K
+K.range <- seq(from = 5, to = 15, by = 1)  
+
+searchK.out <- searchK(documents = documents, vocab = vocab, K = K.range, data = meta, 
+                       prevalence = ~ publication_year, 
+                       max.em.its = 50)
+
+plot(searchK.out)
+```
+
+
+
+
+```{r}
+#Running Structural Topic Modeling
+stmFit_12 <- stm(documents = documents, vocab = vocab, K = 12, prevalence = ~ publication_year, data = meta, max.em.its = 50)
+```
+
+
+
+```{r}
+topic_terms <- stm::labelTopics(model = stmFit_12, topics = 12, n = 50)
+print(topic_terms)
+```
+
+```{r}
+# Estimate the effect of publication year on topic prevalence
+effect <- estimateEffect(1:12 ~ publication_year, stmFit_12, metadata = meta)
+```
+
+
+```{r}
+plotModels(poliblogSelect, pch=c(1,2,3,4), legend.position="bottomright")
+```
+
+```{r}
+options(repr.plot.width=16, repr.plot.height=8)
+topic_colors <- c("#FF0000", "#CAFF70","#90EE90",'#00008B',"#800080")
+plot(effect, "publication_year", method = "continuous", topics = c(1,2,4,8,10), model = stmFit_10, printlegend = FALSE,
+     xlab = "Publication Year", ylab = "Topic Proportion", 
+     main = "Topic Trends Over Time", 
+     cex.main = 1.5, cex.lab = 1.5, cex.axis = 1.2, lwd = 2)
+
+legend("topleft",
+       legend = c("Child & Adolescent Development",
+                  "Mental Health",
+                  "Cognitive Neuroscience ",
+                  "Astrophysics",
+                  "Primatology & Evolutionary Genetics"),
+       col = topic_colors,
+       lty = 1, cex = 0.6)
+```
+
+
+```{r}
+options(repr.plot.width=16, repr.plot.height=8)
+topic_colors <- c("#FF0000","#FFB90F", "#76EE00","#90EE90","#009ACD","#104E8B","#FF1493")
+
+plot(effect, "publication_year", method = "continuous", topics = c(3, 5, 6, 7, 9, 11, 12), model = stmFit_10, printlegend = FALSE,
+     xlab = "Publication Year", ylab = "Topic Proportion", 
+     main = "Topic Trends Over Time", 
+     cex.main = 1.5, cex.lab = 1.5, cex.axis = 1.2, lwd = 2)
+
+legend("topright",
+       legend = c("Paleoclimatology",
+                  "Environmental Change & Land Use",
+                  "Social Identity & Group Dynamics",
+                  "Linguistics & Language Acquisition",
+                  "Archaeology",
+                  "Sociopolitical Dynamics & Globalization",
+                  "Research Methodology"),
+       col = topic_colors,
+       lty = 1, cex = 0.6)
+  
+```
+
+
+```{r}
+#Extracting Topic Proportions 
+theta <- stmFit_12$theta
+
+# Calculate mean topic prevalence
+topic_prevalence <- colMeans(theta)
+
+# Display the prevalence for each topic
+topic_prevalence
+  
+```
+
+
+```{r}
+topic_correlations <- cor(theta)
+```
+
+```{r}
+top_terms <- labelTopics(stmFit_12, n = 12)
+```
+
+```{r}
+top_terms$frex
+```
+
+```{r}
+labels <- c(
+  "Child & Adolescent Development",
+  "Mental Health",
+  "Paleoclimatology",
+  "Cognitive Neuroscience",
+  "Environmental Change & Land Use",
+  "Social Identity & Group Dynamics",
+  "Linguistics & Language Acquisition",
+  "Astrophysics",
+  "Archaeology",
+  "Primatology & Evolutionary Genetics",
+  "Sociopolitical Dynamics & Globalization",
+  "Research Methodology"
+)
+
+```
+
+
+```{r}
+
+# Now create a data frame with the topic number, the assigned label, and the FREX words
+
+frex_terms <- sapply(top_terms$frex, paste, collapse = ", ")
+
+# Create a data frame with the topic number, the assigned label, and the FREX words
+topic_data_frame <- data.frame(
+  topic = 1:12,
+  label = labels,
+  frex_words = frex_terms
+)
+
+# Print the data frame to check
+print(topic_data_frame)
+```
+
+
+
+```{r}
+pheatmap(topic_correlations,
+         color = colorRampPalette(c("#009ACD", "yellow", "#CAFF70"))(256), 
+         labels_row = labels, 
+         labels_col = labels, 
+         display_numbers = TRUE, 
+         number_format = "%.2f",
+         main = "Topic Correlation Heatmap",
+         fontsize_row = 8,
+         fontsize_col = 8,
+         cluster_rows = FALSE,   # Do not cluster rows
+         cluster_cols = FALSE,
+         angle_col = 315)
+```
+
+
+
+```{r}
+labels <- c(
+  "Child & Adolescent",
+  "Mental Health",
+  "Paleoclimatology",
+  "Cognitive Neuroscience",
+  "Environmental Change",
+  "Social Dynamics",
+  "Linguistics",
+  "Astrophysics",
+  "Archaeology",
+  "Primatology",
+  "Sociopolitical & Globalization",
+  "Research Methodology"
+)
+```
+
+```{r}
+
+# Melt the topic correlation matrix into long format
+topic_correlations_long <- melt(as.matrix(topic_correlations), value.name = "weight")
+
+# Remove self-loops
+topic_correlations_long <- subset(topic_correlations_long, Var1 != Var2)
+
+# Create a graph object from the long format dataframe
+network_graph <- graph_from_data_frame(topic_correlations_long, directed = FALSE)
+
+# Define the size of the vertices based on the number of connections (degree of the node)
+V(network_graph)$size <- degree(network_graph) * 10  # Scale can be adjusted
+
+V(network_graph)$name <- labels
+
+# Create a new edge attribute for edge color based on the sign of the correlation
+E(network_graph)$color <- ifelse(E(network_graph)$weight > 0, "blue", "orange")
+
+# Scale edge weights by the absolute value
+E(network_graph)$weight <- abs(E(network_graph)$weight) * 3
+
+# Calculate layout with space
+layout <- layout_with_fr(network_graph)
+
+plot(network_graph,
+     layout = layout,
+     vertex.size = sqrt(degree(network_graph)) * 2,
+     vertex.label = V(network_graph)$name,
+     vertex.label.cex = 0.8,
+     vertex.label.dist = 0.8,
+     vertex.label.color = "black",
+     edge.width = E(network_graph)$weight * 2,
+     edge.color = E(network_graph)$color,  # Set edge colors
+     main = "Topic Correlation Network")
+
+```
+
+
+
+
+
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
