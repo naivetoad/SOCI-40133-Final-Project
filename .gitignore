@@ -1,5 +1,0 @@
-# Ignore the csv file with word embedding from SciBert
-database/content_analysis_abstract_embedding.csv
-
-# Ignore SciBERT embedding for paper abstract
-database/abstract_embeddings.npz
