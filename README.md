@@ -1,25 +1,24 @@
-# SOCI-40133-Final-Project
+## NSF Research Funding and Scholarly Impact
+This project examines the relationship between NSF funding and research trends 
+within the Behavioral and Cognitive Sciences Division.
 
-This repository contains Jiazheng Li (jiazheng123@uchicago.edu), Tianyue Cong (tianyuec@uchicago.edu), and Weiwu Yan's (weiwuyan@uchicago.edu) code for SOCI 40133 Computational Content Analysis final project that examines:
-1) difference in funding received across subfields under NSF division of Behavioral and Cognitive Sciences;
-2) temporal dynamics of topic prevalence from 2011 to 2020;
-3) impact of research funding on awarded authors' research topical diversity.
+Specifically, it investigates:
+1. differences in funding allocation across subfields
+2. temporal shifts in research topics
+3. the impact of NSF funding on topic diversity of reseachers.
 
-## Github Repo Navigation
-The following is the **top-level directory layout** of this repo:
+## File Structure
+.
+├── data_processing/                 # Scrapes and cleans data
+├── data/                            # Stores data and trained models
+├── kmeans_clustering.ipynb          # Clusters awarded researchers.
+├── research_diversity.ipynb         # Assesses topic diversity of researchers.
+├── collaboration_network.ipynb      # Constructs collaboration networks of researchers.
+├── .gitattributes                   # Defines attributes for pathnames.
+├── README.md                        # Provides a project overview.
+└── structural_topic_modeling.Rmd    # Analyzes shifts in research topics.
 
-    .
-    ├── cluster/                         # Cluster authors based on tf-idf vectors of paper abstract
-    ├── collaboration_network/           # Build collaboration network of awarded authors
-    ├── data_processing/                 # Preprocess the data ready for analysis
-    ├── database/                        # Database storing the data for analysis
-    ├── research diversity/              # Examine the impact of NSF funding on research topical diversity
-    ├── .gitattributes
-    ├── .gitignore
-    ├── README.md
-    └── Structural Topic Modeling.Rmd    # Conduct structual topic modeling
-
-## Workflow
-This project began by leveraging helper functions in [data_processing](data_processing) to store different csv files ready for data analysis. Then, we performed [clustering](cluster) of awarded authors based on ti-idf vectors of paper abstract. Following that, we performed [structural topic modeling](Structural Topic Modeling.Rmd) to examine changes in topic prevalence from 2011 to 2020. Finally, we performed [within-person test of research diversity](research_diversity) to test the effect of NSF funding on awarded authors' topical diversity. 
-
-Note: we also tried to build [collaboration network](collaboration_network) and examined changes in (network) centrality measures. But unfortunately, we did not find any significant differences, so we did not include them in the final paper (also given already sufficient amount of content). However, we still decided to put this in the repo for reference.  
+## Contributers
+[Cong, Tianyue](https://github.com/cty20010831)
+[Li, Jiazhang](https://github.com/Vindmn1234)
+[Yan, Weiwu](https://github.com/naivetoad)
