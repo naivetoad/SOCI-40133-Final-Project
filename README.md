@@ -1,5 +1,5 @@
-## NSF Research Funding and Scholarly Impact
-This project examines the relationship between NSF funding and research trends 
+## NSF Funding and Academic Output
+This project examines the relationship between NSF funding and academic output 
 within the Behavioral and Cognitive Sciences Division.
 
 Specifically, it investigates:
